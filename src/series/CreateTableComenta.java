@@ -6,13 +6,13 @@ public class CreateTableComenta implements DataBaseTask {
     @Override
     public void run(Connection conn, String data) throws SeriesException {
         String sql = "CREATE TABLE IF NOT EXISTS comenta (" +
-                "usuario_id INT NOT NULL, " +
-                "capitulo_id INT NOT NULL, " +
+                "id_usuario INT NOT NULL, " +
+                "id_serie INT NOT NULL, " +
                 "texto TEXT NOT NULL, " +
                 "fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "PRIMARY KEY (usuario_id, capitulo_id), " +
-                "FOREIGN KEY (usuario_id) REFERENCES usuario(id), " +
-                "FOREIGN KEY (capitulo_id) REFERENCES capitulo(id)" +
+                "PRIMARY KEY (id_usuario, id_serie), " +
+                "FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario), " +
+                "FOREIGN KEY (id_serie) REFERENCES capitulo(id_serie)" +
                 ")";
 
         try (Statement stmt = conn.createStatement()) {
