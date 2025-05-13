@@ -3,7 +3,7 @@ package series;
 public class Main {
     public static void main(String[] args) {
         // Crea el gestor de conexiones
-        ConnectionManager cm = new ConnectionManager("estudiante","bbdd-upm");
+        ConnectionManager cm = new ConnectionManager("estudiante", "bbdd-upm");
 
         // Crear las tareas:
         DataBaseTask[] tasks = { new CreateTableValora(), new CreateTableComenta() };
