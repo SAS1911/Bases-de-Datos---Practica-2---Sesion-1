@@ -3,20 +3,23 @@ package series;
 import java.sql.*;
 
 public class CreateTableComenta implements DataBaseTask {
-    @Override
-    public void run(Connection conn, String data) throws SeriesException {
-        String sql = "CREATE TABLE IF NOT EXISTS comenta (" +
-                "id_usuario INT NOT NULL, " +
-                "id_serie INT NOT NULL, " +
-                "texto TEXT NOT NULL, " +
-                "fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                "PRIMARY KEY (id_usuario, id_serie), " +
-                "FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario), " +
-                "FOREIGN KEY (id_serie) REFERENCES capitulo(id_serie)" +
-                ")";
 
-        try (Statement stmt = conn.createStatement()) {
+    public void run(Connection conn, String data) throws SeriesException {
+        try {
+            String sql = "CREATE TABLE comenta (" +
+                    "id_serie INT, " +
+                    "n_temporada INT, " +
+                    "id_usuario INT, " +
+                    "fecha DATE, " +
+                    "texto VARCHAR(200), " +
+                    "PRIMARY KEY(id_serie, n_temporada, id_usuario, fecha), " +
+                    "FOREIGN KEY(id_serie, n_temporada) REFERENCES temporada(id_serie, n_temporada) " +
+                    "ON DELETE CASCADE ON UPDATE CASCADE, " +
+                    "FOREIGN KEY(id_usuario) REFERENCES usuario(id_usuario) " + "  ON DELETE CASCADE ON UPDATE CASCADE);";
+
+            Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql);
+            stmt.close();
         } catch (SQLException e) {
             throw new SeriesException(e, "CreateTableComenta");
         }

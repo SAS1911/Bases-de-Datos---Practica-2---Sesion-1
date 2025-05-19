@@ -3,10 +3,12 @@ package series;
 import java.sql.*;
 
 public class ConnectionManager {
+
     private final String user;
     private final String password;
     private final String url;
 
+    
     public ConnectionManager(String user, String password) {
         this.user = user;
         this.password = password;
@@ -20,27 +22,25 @@ public class ConnectionManager {
     public String runTask(DataBaseTask[] tasks, String[] dataArray) {
         Connection conn = null;
         try {
-            // Conexión básica sin parámetros adicionales
-            conn = DriverManager.getConnection(url, user, password);
-
-            // Ejecutar tareas
+            conn = DriverManager.getConnection(this.url, this.user, this.password);
             for (int i = 0; i < tasks.length; i++) {
-                String data = (i < dataArray.length) ? dataArray[i] : "";
-                tasks[i].run(conn, data);
+                try {
+                    tasks[i].run(conn, dataArray[i]);
+                } catch (SeriesException e) {
+                    return "Task:" + e.when() + "\t" + e.getMessage();
+                }
             }
             return "OK";
         } catch (SQLException e) {
             return "SQL:" + e.getMessage();
-        } catch (SeriesException e) {
-            return "Task:" + e.when() + ":" + e.getMessage();
         } catch (Exception e) {
             return "Otro:" + e.getMessage();
         } finally {
             if (conn != null) {
                 try {
                     conn.close();
-                } catch (SQLException e) {
-                    System.err.println("Error al cerrar conexión: " + e.getMessage());
+                } catch (SQLException ignore) {
+                    // Si falla el close, no interrumpe el flujo
                 }
             }
         }
