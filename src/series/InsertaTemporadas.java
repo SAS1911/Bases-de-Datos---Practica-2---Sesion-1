@@ -36,34 +36,41 @@ public class InsertaTemporadas implements DataBaseTask {
         }
 
         try {
-            // Parsear datos
             int idSerie = Integer.parseInt(tokens[0].trim());
+
+            // Verificar si la serie existe
+            try (PreparedStatement checkStmt = pst.getConnection().prepareStatement(
+                    "SELECT 1 FROM serie WHERE id_serie = ?")) {
+                checkStmt.setInt(1, idSerie);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new SQLException("La serie con ID " + idSerie + " no existe");
+                    }
+                }
+            }
+
+            // Resto del código para insertar la temporada...
             int numTemporada = Integer.parseInt(tokens[1].trim());
             int numCapitulos = Integer.parseInt(tokens[2].trim());
 
-            // Parsear fecha (formato dd-mm-yyyy)
             String[] fechaParts = tokens[3].trim().split("-");
             if (fechaParts.length != 3) {
                 throw new SQLException("Formato de fecha incorrecto. Se esperaba dd-mm-yyyy");
             }
-            int dia = Integer.parseInt(fechaParts[0]);
-            int mes = Integer.parseInt(fechaParts[1]);
-            int anio = Integer.parseInt(fechaParts[2]);
 
-            LocalDate localDate = LocalDate.of(anio, mes, dia);
-            Date fechaEstreno = Date.valueOf(localDate);
+            LocalDate localDate = LocalDate.of(
+                    Integer.parseInt(fechaParts[2]),
+                    Integer.parseInt(fechaParts[1]),
+                    Integer.parseInt(fechaParts[0]));
 
-            // Establecer parámetros
             pst.setInt(1, idSerie);
             pst.setInt(2, numTemporada);
             pst.setInt(3, numCapitulos);
-            pst.setDate(4, fechaEstreno);
+            pst.setDate(4, Date.valueOf(localDate));
 
             return pst.executeUpdate();
         } catch (NumberFormatException e) {
             throw new SQLException("Error al parsear números: " + e.getMessage());
-        } catch (Exception e) {
-            throw new SQLException("Error al procesar línea: " + e.getMessage());
         }
     }
 
