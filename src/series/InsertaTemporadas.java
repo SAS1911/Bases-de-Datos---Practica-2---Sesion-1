@@ -30,48 +30,22 @@ public class InsertaTemporadas implements DataBaseTask {
      * @throws SQLException
      */
     public int insertaUnaTemporada(PreparedStatement pst, String linea) throws SQLException {
-        String[] tokens = linea.split(",");
-        if (tokens.length != 4) {
-            throw new SQLException("Formato de línea incorrecto. Se esperaban 4 valores separados por comas");
-        }
+        String[] campos = linea.split(",");
+        int idSerie = Integer.parseInt(campos[0].trim());
+        int nTemporada = Integer.parseInt(campos[1].trim());
+        int nCapitulos = Integer.parseInt(campos[2].trim());
+        String[] fechaParts = campos[3].trim().split("-");
+        LocalDate fecha = LocalDate.of(
+                Integer.parseInt(fechaParts[2]),
+                Integer.parseInt(fechaParts[1]),
+                Integer.parseInt(fechaParts[0]));
 
-        try {
-            int idSerie = Integer.parseInt(tokens[0].trim());
+        pst.setInt(1, idSerie);
+        pst.setInt(2, nTemporada);
+        pst.setInt(3, nCapitulos);
+        pst.setDate(4, Date.valueOf(fecha));
 
-            // Verificar si la serie existe
-            try (PreparedStatement checkStmt = pst.getConnection().prepareStatement(
-                    "SELECT 1 FROM serie WHERE id_serie = ?")) {
-                checkStmt.setInt(1, idSerie);
-                try (ResultSet rs = checkStmt.executeQuery()) {
-                    if (!rs.next()) {
-                        throw new SQLException("La serie con ID " + idSerie + " no existe");
-                    }
-                }
-            }
-
-            // Resto del código para insertar la temporada...
-            int numTemporada = Integer.parseInt(tokens[1].trim());
-            int numCapitulos = Integer.parseInt(tokens[2].trim());
-
-            String[] fechaParts = tokens[3].trim().split("-");
-            if (fechaParts.length != 3) {
-                throw new SQLException("Formato de fecha incorrecto. Se esperaba dd-mm-yyyy");
-            }
-
-            LocalDate localDate = LocalDate.of(
-                    Integer.parseInt(fechaParts[2]),
-                    Integer.parseInt(fechaParts[1]),
-                    Integer.parseInt(fechaParts[0]));
-
-            pst.setInt(1, idSerie);
-            pst.setInt(2, numTemporada);
-            pst.setInt(3, numCapitulos);
-            pst.setDate(4, Date.valueOf(localDate));
-
-            return pst.executeUpdate();
-        } catch (NumberFormatException e) {
-            throw new SQLException("Error al parsear números: " + e.getMessage());
-        }
+        return pst.executeUpdate();
     }
 
     /*
@@ -96,39 +70,22 @@ public class InsertaTemporadas implements DataBaseTask {
      */
     @Override
     public void run(Connection conn, String data) throws SeriesException {
-        PreparedStatement pst = null;
-        Scanner scanner = null;
+        String sql = "INSERT INTO temporada (id_serie, n_temporada, n_capitulos, fecha_estreno) VALUES (?, ?, ?, ?)";
 
-        try {
-            // Preparar statement SQL
-            String sql = "INSERT INTO temporada (id_serie, n_temporada, n_capitulos, fecha_estreno) VALUES (?, ?, ?, ?)";
-            pst = conn.prepareStatement(sql);
+        try (PreparedStatement pst = conn.prepareStatement(sql);
+                Scanner sc = new Scanner(new FileInputStream(data))) {
 
-            // Leer archivo CSV
-            scanner = new Scanner(new FileInputStream(data));
-
-            while (scanner.hasNextLine()) {
-                String linea = scanner.nextLine().trim();
-                if (!linea.isEmpty()) { // Ignorar líneas vacías
+            while (sc.hasNextLine()) {
+                String linea = sc.nextLine();
+                if (!linea.isEmpty()) {
                     insertaUnaTemporada(pst, linea);
                 }
             }
+
         } catch (SQLException e) {
             throw new SeriesException(e, "Insertando");
         } catch (Exception e) {
             throw new SeriesException(e, "Insertando");
-        } finally {
-            // Cerrar recursos
-            if (pst != null) {
-                try {
-                    pst.close();
-                } catch (SQLException e) {
-                    System.err.println("Error al cerrar PreparedStatement: " + e.getMessage());
-                }
-            }
-            if (scanner != null) {
-                scanner.close();
-            }
         }
     }
 }
