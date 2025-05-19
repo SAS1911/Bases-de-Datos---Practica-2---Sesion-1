@@ -30,7 +30,41 @@ public class InsertaTemporadas implements DataBaseTask {
      * @throws SQLException
      */
     public int insertaUnaTemporada(PreparedStatement pst, String linea) throws SQLException {
-        return 0;
+        String[] tokens = linea.split(",");
+        if (tokens.length != 4) {
+            throw new SQLException("Formato de línea incorrecto. Se esperaban 4 valores separados por comas");
+        }
+
+        try {
+            // Parsear datos
+            int idSerie = Integer.parseInt(tokens[0].trim());
+            int numTemporada = Integer.parseInt(tokens[1].trim());
+            int numCapitulos = Integer.parseInt(tokens[2].trim());
+
+            // Parsear fecha (formato dd-mm-yyyy)
+            String[] fechaParts = tokens[3].trim().split("-");
+            if (fechaParts.length != 3) {
+                throw new SQLException("Formato de fecha incorrecto. Se esperaba dd-mm-yyyy");
+            }
+            int dia = Integer.parseInt(fechaParts[0]);
+            int mes = Integer.parseInt(fechaParts[1]);
+            int anio = Integer.parseInt(fechaParts[2]);
+
+            LocalDate localDate = LocalDate.of(anio, mes, dia);
+            Date fechaEstreno = Date.valueOf(localDate);
+
+            // Establecer parámetros
+            pst.setInt(1, idSerie);
+            pst.setInt(2, numTemporada);
+            pst.setInt(3, numCapitulos);
+            pst.setDate(4, fechaEstreno);
+
+            return pst.executeUpdate();
+        } catch (NumberFormatException e) {
+            throw new SQLException("Error al parsear números: " + e.getMessage());
+        } catch (Exception e) {
+            throw new SQLException("Error al procesar línea: " + e.getMessage());
+        }
     }
 
     /*
@@ -55,6 +89,39 @@ public class InsertaTemporadas implements DataBaseTask {
      */
     @Override
     public void run(Connection conn, String data) throws SeriesException {
+        PreparedStatement pst = null;
+        Scanner scanner = null;
 
+        try {
+            // Preparar statement SQL
+            String sql = "INSERT INTO temporada (id_serie, n_temporada, n_capitulos, fecha_estreno) VALUES (?, ?, ?, ?)";
+            pst = conn.prepareStatement(sql);
+
+            // Leer archivo CSV
+            scanner = new Scanner(new FileInputStream(data));
+
+            while (scanner.hasNextLine()) {
+                String linea = scanner.nextLine().trim();
+                if (!linea.isEmpty()) { // Ignorar líneas vacías
+                    insertaUnaTemporada(pst, linea);
+                }
+            }
+        } catch (SQLException e) {
+            throw new SeriesException(e, "Insertando");
+        } catch (Exception e) {
+            throw new SeriesException(e, "Insertando");
+        } finally {
+            // Cerrar recursos
+            if (pst != null) {
+                try {
+                    pst.close();
+                } catch (SQLException e) {
+                    System.err.println("Error al cerrar PreparedStatement: " + e.getMessage());
+                }
+            }
+            if (scanner != null) {
+                scanner.close();
+            }
+        }
     }
 }

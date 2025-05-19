@@ -4,11 +4,10 @@ import java.sql.*;
 
 public class ConnectionManager {
 
-    private final String user;
-    private final String password;
+    protected final String user;
+    protected final String password;
     private final String url;
 
-    
     public ConnectionManager(String user, String password) {
         this.user = user;
         this.password = password;
