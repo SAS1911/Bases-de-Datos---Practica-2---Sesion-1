@@ -11,9 +11,9 @@ public class Main {
         // Cambia los archivos para hacer mas pruebas
         DataBaseTask[] tasks = {
                 // Descomenta esta linea.
-                // new InsertaTemporadas(), // O inserta directamente en el workbench
+                new InsertaTemporadas(), // O inserta directamente en el workbench
         };
-        String[] data = { "data/temporadas.csv" };
+        String[] data = { "C:\\Users\\sanch\\Downloads\\Sesión 2-20250519\\temporadas.csv" };
 
         // Llamar a run:
         String ok = cm.runTask(tasks, data);
@@ -27,12 +27,11 @@ public class Main {
         // Crear las tareas
         // Cambia los archivos para hacer mas pruebas
         DataBaseTask[] tasks = {
-                // new InsertaTemporadas(), // O inserta directamente en el workbench
+                new InsertaTemporadas(), // O inserta directamente en el workbench
                 new ActualizaColumna(), // Modifica titulo en capitulo
         };
         String[] data = {
-                "data/temporadas.csv",
-                "" };
+                "C:\\Users\\sanch\\Downloads\\Sesión 2-20250519\\temporadas.csv", "" };
 
         // Llamar a run:
         String ok = cm.runTask(tasks, data);
