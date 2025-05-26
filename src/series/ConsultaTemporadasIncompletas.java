@@ -11,8 +11,7 @@ import java.util.ArrayList;
  * y sobrescribe el método run. Realiza una consulta SQL que obtiene el título y
  * número de temporada de series cuya cantidad real de capítulos no coincide con
  * la esperada. Cada resultado se guarda como un String en el formato
- * "titulo:n_temporada". Maneja adecuadamente las excepciones. Cierra todos los
- * Statement utilizados para evitar fugas de recursos.
+ * "titulo:n_temporada".
  */
 public class ConsultaTemporadasIncompletas extends ConsultaConResultado<String> {
 
