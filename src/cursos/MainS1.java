@@ -5,11 +5,11 @@ public class MainS1 {
     // Comprobar
     public static void test() {
         // Crea el gestor de conexiones
-        BBDDManager cm = new BBDDManager("alumno","bbdd-upm");
+        BBDDManager cm = new BBDDManager("root", "19112004$Ss");
 
         // Crear las tareas
         DataBaseTask[] tasks = {
-            new CreateTable()
+                new CreateTable()
         };
         String[] data = { "" };
 
@@ -22,5 +22,3 @@ public class MainS1 {
         test();
     }
 }
-
-
