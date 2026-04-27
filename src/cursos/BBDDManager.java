@@ -20,13 +20,14 @@ public class BBDDManager {
 
     public StringWriter run(DataBaseTask[] tasks, String[] dataArray, boolean autoCommit) {
         StringWriter result = new StringWriter();
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(this.url, this.user, this.password);
+        try (Connection conn = DriverManager.getConnection(this.url, this.user, this.password)) {
             conn.setAutoCommit(autoCommit);
             for (int i = 0; i < tasks.length; i++) {
                 try {
                     tasks[i].run(conn, dataArray[i]);
+                    if (!autoCommit) {
+                        conn.commit();
+                    }
                 } catch (BBDDException e) {
                     result.add("Task:" + e.when() + ";" + e.getMessage() + ";");
                     if (!autoCommit) {
@@ -37,21 +38,12 @@ public class BBDDManager {
                     if (!autoCommit) {
                         conn.rollback();
                     }
-                } catch (Exception e) {
-                    result.add("Otro:" + e.getMessage() + ";");
                 }
             }
         } catch (SQLException e) {
             result.add("Connection:" + e.getMessage() + ";");
         } catch (Exception e) {
             result.add("Otro:" + e.getMessage() + ";");
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ignore) {
-                }
-            }
         }
         result.add("fin");
         return result;

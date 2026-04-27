@@ -51,9 +51,7 @@ public class ConnectionManagerWithoutAC extends ConnectionManager {
 
     @Override
     public String runTask(DataBaseTask[] tasks, String[] dataArray) {
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(url(), user, password);
+        try (Connection conn = DriverManager.getConnection(url(), user, password)) {
             conn.setAutoCommit(false);
 
             for (int i = 0; i < tasks.length; i++) {
@@ -63,13 +61,6 @@ public class ConnectionManagerWithoutAC extends ConnectionManager {
             conn.commit();
             return "OK";
         } catch (SQLException e) {
-            try {
-                if (conn != null)
-                    conn.rollback();
-            } catch (SQLException ex) {
-                return "Rollback failed: " + ex.getMessage();
-            }
-
             if (e.getErrorCode() == 1452) { // Código para violación de FK
                 return "Error de clave foránea: " + e.getMessage() +
                         "\nAsegúrate que las series referenciadas existen";
@@ -77,15 +68,6 @@ public class ConnectionManagerWithoutAC extends ConnectionManager {
             return e.getMessage();
         } catch (SeriesException e) {
             return e.when() + ":" + e.getMessage();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    System.err.println("Error al cerrar conexión: " + e.getMessage());
-                }
-            }
         }
     }
 }

@@ -19,9 +19,7 @@ public class ConnectionManager {
     }
 
     public String runTask(DataBaseTask[] tasks, String[] dataArray) {
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(this.url, this.user, this.password);
+        try (Connection conn = DriverManager.getConnection(this.url, this.user, this.password)) {
             for (int i = 0; i < tasks.length; i++) {
                 try {
                     tasks[i].run(conn, dataArray[i]);
@@ -34,14 +32,6 @@ public class ConnectionManager {
             return "SQL:" + e.getMessage();
         } catch (Exception e) {
             return "Otro:" + e.getMessage();
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException ignore) {
-                    // Si falla el close, no interrumpe el flujo
-                }
-            }
         }
     }
 }

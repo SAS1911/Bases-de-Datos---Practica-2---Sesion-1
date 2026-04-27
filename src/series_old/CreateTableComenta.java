@@ -18,9 +18,9 @@ public class CreateTableComenta implements DataBaseTask {
                     "FOREIGN KEY(id_usuario) REFERENCES usuario(id_usuario) "
                     + "  ON DELETE CASCADE ON UPDATE CASCADE);";
 
-            Statement stmt = conn.createStatement();
-            stmt.executeUpdate(sql);
-            stmt.close();
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate(sql);
+            }
         } catch (SQLException e) {
             throw new SeriesException(e, "CreateTableComenta");
         }
