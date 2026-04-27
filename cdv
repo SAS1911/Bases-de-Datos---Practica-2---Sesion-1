@@ -47,7 +47,8 @@ public class InsertaImparteDesdeCSV implements DataBaseTask {
                 } catch (NumberFormatException e) {
                     throw new BBDDException("Error en " + numL + ": " + l);
                 } catch (DateTimeParseException e) {
-                    throw new BBDDException("Formato de fecha incorrecto " + numL + ": " + espacioError(l));
+                    throw new BBDDException("Formato de fecha incorrecto " + numL + ": "
+);
                 }
             }
 
@@ -61,11 +62,4 @@ public class InsertaImparteDesdeCSV implements DataBaseTask {
         }
     }
 
-    private String espacioError(String linea) {
-        try {
-            return linea.split(",")[4].trim();
-        } catch (Exception e) {
-            return linea;
-        }
-    }
-}
+   }
