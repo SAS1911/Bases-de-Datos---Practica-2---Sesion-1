@@ -61,7 +61,6 @@ public class InsertaImparteDesdeCSV implements DataBaseTask {
         }
     }
 
-    // Método auxiliar para evitar reventar si la línea está mal formada
     private String camposErrorSeguro(String linea) {
         try {
             return linea.split(",")[4].trim();
