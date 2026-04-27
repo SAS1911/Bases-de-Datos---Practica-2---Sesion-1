@@ -6,35 +6,31 @@ import java.time.format.DateTimeParseException;
 
 public class InsertaImparteDesdeCSV implements DataBaseTask {
 
-    @Override
+@Override
     public void run(Connection conn, String data) throws BBDDException, SQLException {
 
    String sql = "INSERT INTO imparte (profesor_id, curso_id, n_modulo, aula_id, fecha) VALUES (?, ?, ?, ?, ?)";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        try (BufferedReader br = new BufferedReader(new FileReader(data));
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+   try (BufferedReader br = new BufferedReader(new FileReader(data));
+     PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            String linea;
-            int numLinea = 0;
+    String l;
+        int numL = 0;
 
-            while ((linea = br.readLine()) != null) {
-                numLinea++;
-
+            while ((l = br.readLine()) != null) {
+                numL++;
                 try {
-                    String[] campos = linea.split(",");
-
-                    if (campos.length != 5) {
-                        throw new BBDDException("Formato incorrecto en CSV en línea " + numLinea);
+           String[] espacio = l.split(",");
+            if (espacio.length != 5) {
+            throw new BBDDException("Formato incorrecto en CSV en línea " + numL);
                     }
 
-                    int profesorId = Integer.parseInt(campos[0].trim());
-                    int cursoId = Integer.parseInt(campos[1].trim());
-                    int nModulo = Integer.parseInt(campos[2].trim());
-                    int aulaId = Integer.parseInt(campos[3].trim());
-
-                    // Parse bien hecho
-                    LocalDate fecha = LocalDate.parse(campos[4].trim(), formatter);
+                    int profesorId = Integer.parseInt(espacio[0].trim());
+                    int cursoId = Integer.parseInt(espacio[1].trim());
+                    int nModulo = Integer.parseInt(espacio[2].trim());
+                    int aulaId = Integer.parseInt(espacio[3].trim());
+                    LocalDate fecha = LocalDate.parse(espacio[4].trim(), formatter);
 
                     ps.setInt(1, profesorId);
                     ps.setInt(2, cursoId);
@@ -45,18 +41,18 @@ public class InsertaImparteDesdeCSV implements DataBaseTask {
                     int filas = ps.executeUpdate();
 
                     if (filas != 1) {
-                        throw new SQLException("La inserción no afectó a 1 fila en línea " + numLinea);
+                        throw new SQLException("No afecta la inserccion " + numL);
                     }
 
                 } catch (NumberFormatException e) {
-                    throw new BBDDException("Error numérico en línea " + numLinea + ": " + linea);
+                    throw new BBDDException("Error en " + numL + ": " + l);
                 } catch (DateTimeParseException e) {
-                    throw new BBDDException("Formato de fecha incorrecto en línea " + numLinea + ": " + camposErrorSeguro(linea));
+                    throw new BBDDException("Formato de fecha incorrecto " + numL + ": " + camposErrorSeguro(l));
                 }
             }
 
         } catch (IOException e) {
-            BBDDException ex = new BBDDException("Error leyendo el archivo CSV");
+            BBDDException ex = new BBDDException("Error con el .csv");
             ex.setWhen("Insertando");
             throw ex;
         } catch (BBDDException e) {
