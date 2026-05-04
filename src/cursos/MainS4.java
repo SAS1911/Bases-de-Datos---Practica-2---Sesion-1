@@ -3,7 +3,7 @@ package cursos;
 public class MainS4 {
 
     public static void test() {
-        BBDDManager cm = new BBDDManager("root", "19112004$Ss");
+        BBDDManager cm = new BBDDManager("alumno", "bbdd-upm");
 
         System.out.println("--- ConsultaBlob ---");
         StringWriter resultBlob = cm.run(

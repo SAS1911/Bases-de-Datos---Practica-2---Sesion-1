@@ -31,20 +31,18 @@ public class ConsultaBlob implements DataBaseTask {
 
         String sql = "SELECT foto FROM edificio WHERE nombre = ? ORDER BY id ASC LIMIT 1";
 
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+        Path fichero = Paths.get(data + ".jpg");
+        try (PreparedStatement pst = conn.prepareStatement(sql); var os = Files.newOutputStream(fichero)) {
             pst.setString(1, data);
             try (ResultSet rs = pst.executeQuery()) {
                 if (!rs.next()) {
                     throw new IllegalArgumentException("no existe");
                 }
                 byte[] foto = rs.getBytes("foto");
-                Path fichero = Paths.get(data + ".jpg");
-                try {
-                    Files.write(fichero, foto);
-                } catch (IOException e) {
-                    throw new BBDDException(e, "error archivo");
-                }
+                os.write(foto);
             }
+        } catch (IOException e) {
+            throw new BBDDException(e, "error archivo");
         }
     }
 }

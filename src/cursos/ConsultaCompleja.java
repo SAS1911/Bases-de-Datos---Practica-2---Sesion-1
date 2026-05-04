@@ -30,15 +30,15 @@ public class ConsultaCompleja extends ConsultaConResultado<Properties> {
             throw new BBDDException(e, "not int");
         }
 
-        String sql = "SELECT p.nombre, p.apellido1, p.apellido2, ip.curso_id, " +
-                "(SUM(m.horas) * 100.0 / total.total_horas) AS porcentaje " +
-                "FROM (SELECT DISTINCT profesor_id, curso_id, n_modulo FROM imparte) ip " +
-                "JOIN modulo m ON ip.curso_id = m.curso_id AND ip.n_modulo = m.n_modulo " +
-                "JOIN profesor p ON ip.profesor_id = p.id " +
-                "JOIN (SELECT curso_id, SUM(horas) AS total_horas FROM modulo GROUP BY curso_id) total " +
-                "ON ip.curso_id = total.curso_id " +
-                "GROUP BY p.id, ip.curso_id, p.nombre, p.apellido1, p.apellido2, total.total_horas " +
-                "HAVING SUM(m.horas) * 100 >= ? * total.total_horas " +
+        String sql = "SELECT p.nombre, p.apellido1, apellido2 ,m.curso_id," +
+                "((SUM(m.horas)/total.horas_total)*100) AS porcentaje " +
+                "FROM profesor p " +
+                "JOIN imparte im ON p.id = im.profesor_id " +
+                "JOIN modulo m ON im.curso_id = m.curso_id AND im.n_modulo = m.n_modulo " +
+                "JOIN (" + " SELECT curso_id, SUM(horas) AS horas_total " +
+                "FROM modulo GROUP BY curso_id " + ") total ON m.curso_id = total.curso_id " +
+                "GROUP BY p.id, m.curso_id " +
+                "HAVING porcentaje >= ? " +
                 "ORDER BY p.apellido1 ASC";
 
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
