@@ -15,30 +15,29 @@ public class ConsultaConFiltro extends ConsultaConResultado<Properties> {
      */
     @Override
     public void run(Connection conn, String data) throws BBDDException, SQLException {
+        resultado = new ArrayList<>();
+
         if (data == null || data.trim().isEmpty()) {
             throw new BBDDException(null, "filtro vacio");
         }
 
-        String sql = "SELECT p.nombre, p.apellido1, p.apellido2, i.curso_id, c.titulo " +
+        String sql = "SELECT p.nombre, p.apellido1, p.apellido2, i.curso_id, m.titulo " +
                 "FROM profesor p " +
-                "JOIN imparte i ON p.profesor_id = i.profesor_id " +
-                "JOIN curso c ON i.curso_id = c.curso_id " +
-                "WHERE c.titulo LIKE ? " +
+                "JOIN imparte i ON p.id = i.profesor_id " +
+                "JOIN modulo m ON i.curso_id = m.curso_id AND i.n_modulo = m.n_modulo " +
+                "WHERE LOWER(m.titulo) LIKE LOWER(?) " +
                 "ORDER BY p.apellido1 ASC";
-
-        resultado = new ArrayList<>();
 
         try (PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setString(1, "%" + data.trim() + "%");
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
-                    String nombre = rs.getString("nombre");
-                    String apellido1 = rs.getString("apellido1");
-                    String apellido2 = rs.getString("apellido2");
-                    String cursoId = String.valueOf(rs.getInt("curso_id"));
-                    String titulo = rs.getString("titulo");
-                    String extra = cursoId + "-" + titulo;
-                    resultado.add(new Properties(nombre, apellido1, apellido2, extra));
+                    Properties p = new Properties(
+                            rs.getString("nombre"),
+                            rs.getString("apellido1"),
+                            rs.getString("apellido2"),
+                            rs.getInt("curso_id") + "-" + rs.getString("titulo"));
+                    resultado.add(p);
                 }
             }
         }

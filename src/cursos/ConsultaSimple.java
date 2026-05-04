@@ -17,20 +17,22 @@ public class ConsultaSimple extends ConsultaConResultado<Properties> {
      */
     @Override
     public void run(Connection conn, String data) throws BBDDException, SQLException {
+        resultado = new ArrayList<>();
+
         if (data == null || !(data.equalsIgnoreCase("ASC") || data.equalsIgnoreCase("DESC"))) {
             throw new BBDDException(null, "ordenando");
         }
 
         String orden = data.equalsIgnoreCase("ASC") ? "ASC" : "DESC";
         String sql = "SELECT nombre, apellido1, apellido2 FROM profesor ORDER BY apellido1 " + orden;
-        resultado = new ArrayList<>();
 
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                String nombre = rs.getString("nombre");
-                String apellido1 = rs.getString("apellido1");
-                String apellido2 = rs.getString("apellido2");
-                resultado.add(new Properties(nombre, apellido1, apellido2));
+                Properties p = new Properties(
+                        rs.getString("nombre"),
+                        rs.getString("apellido1"),
+                        rs.getString("apellido2"));
+                resultado.add(p);
             }
         }
     }

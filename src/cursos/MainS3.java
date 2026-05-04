@@ -12,19 +12,23 @@ public class MainS3 {
                 true);
         System.out.println(result1);
 
-        System.out.println("--- ConsultaSimple ASC ---");
+        System.out.println("--- ConsultaSimple ---");
+        ConsultaSimple consultaSimple = new ConsultaSimple();
         StringWriter result2 = cm.run(
-                new DataBaseTask[] { new ConsultaSimple() },
+                new DataBaseTask[] { consultaSimple },
                 new String[] { "ASC" },
                 true);
         System.out.println(result2);
+        System.out.println(consultaSimple.get());
 
-        System.out.println("--- ConsultaConFiltro 'java' ---");
+        System.out.println("--- ConsultaConFiltro ---");
+        ConsultaConFiltro consultaFiltro = new ConsultaConFiltro();
         StringWriter result3 = cm.run(
-                new DataBaseTask[] { new ConsultaConFiltro() },
+                new DataBaseTask[] { consultaFiltro },
                 new String[] { "java" },
                 true);
         System.out.println(result3);
+        System.out.println(consultaFiltro.get());
     }
 
     public static void main(String[] args) {
