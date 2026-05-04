@@ -1,3 +1,10 @@
- 7, 4, 1, 8,  2025-04-06
- 7, 4, 2, 8,  2025-04-10
- 5, 4, 3, 8,  2025-04-15
+"SELECT p.nombre, p.apellido1, apellido2 ,m.curso_id,"+
+            "((SUM(m.horas)/total.horas_total)*100) AS porcentaje " +
+    		"FROM profesor p "+
+    		"JOIN imparte im ON p.id = im.profesor_id " +
+    		"JOIN modulo m ON i.curso_id = m.curso_id AND i.n_modulo = m.n_modulo "+
+    		"JOIN (" + " SELECT curso_id, SUM(horas) AS horas_total " +
+            "FROM modulo GROUP BY curso_id " + ") total ON m.curso_id = total.curso_id " +
+            "GROUP BY p.id, m.curso_id " +
+            "HAVING porcentaje >= ? " +
+            "ORDER BY p.apellido1 ASC"; 
